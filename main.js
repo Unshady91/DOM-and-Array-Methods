@@ -1,25 +1,11 @@
+// Use forEach() to loop and output user/wealth
 let DATA = [];
+const MAX_WEALTH_RATE = 1000000;
+const main = document.querySelector("main");
 
-const createTemplate = (arr) => {
-  let result;
-
-  arr.forEach((user) => {
-    result = `<strong>${user.name}</strong> &dollar;${user.wealth}.00`;
-  });
-
-  return result;
-};
-
-const setPerson = (providedData = DATA) => {
-  const div = document.createElement("div");
-  div.classList.add("person");
-  const fragment = document.createDocumentFragment();
-  const main = document.querySelector("main");
-
-  div.innerHTML = createTemplate(providedData);
-  
-  fragment.append(div.cloneNode(true));
-  main.appendChild(fragment);
+// Format number as money - https://stackoverflow.com/questions/149055/how-to-format-numbers-as-currency-string
+function formatMoney(number) {
+  return '$' + number.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
 }
 
 const setData = (obj) => {
@@ -29,23 +15,31 @@ const setData = (obj) => {
 };
 
 async function fetchUsers() {
-  await fetch("https://randomuser.me/api/")
-    .then((res) => res.json())
-    .then((person) => {
-      const name = person.results[0].name;
+  const results = await fetch("https://randomuser.me/api/");
+  const data = await results.json();
 
-      let newUser = {
-        name: `${name.first} ${name.last}`,
-        wealth: generateRandomIntegerInRange(MIN_WEALTH_RATE, MAX_WEALTH_RATE),
-      };
+  const user = data.results[0].name;
 
-      setData(newUser);
-    });
+  const newUser = {
+    name: `${user.first} ${user.last}`,
+    wealth: Math.floor(Math.random() * MAX_WEALTH_RATE),
+  };
+
+  setData(newUser);
 }
 
 document.addEventListener("DOMContentLoaded", fetchUsers);
 
-// task 2 add user to the existing list
+function setPerson(providedData = DATA) {
+  main.innerHTML = "<h2><strong>Person</strong> Wealth</h2>";
+
+  providedData.forEach((user) => {
+    const element = document.createElement("div");
+    element.classList.add("person");
+    element.innerHTML = `<strong>${user.name}</strong> ${formatMoney(user.wealth)}`;
+    main.appendChild(element);
+  });
+}
 
 const addUserButton = document.querySelector("#add-user");
 
@@ -55,15 +49,13 @@ const addUserHandler = () => {
 
 addUserButton.addEventListener("click", addUserHandler);
 
-// generates rundom number
-let MIN_WEALTH_RATE = 1;
-let MAX_WEALTH_RATE = 1000000;
+// Use map() to double wealth
+function doubleHandler() {
+  DATA = DATA.map((user) => {
+    return { ...user, wealth: user.wealth * 2 };
+  });
 
-const generateRandomIntegerInRange = (min, max) => {
-  const res = (Math.floor(Math.random() * (max - min + 1000000)) + min).toFixed(
-    2
-  );
-  Number(res);
-  const toString = Number(res).toLocaleString("en-US");
-  return toString;
-};
+  setPerson();
+}
+const doubleMoneyButton = document.querySelector("#double");
+doubleMoneyButton.addEventListener("click", doubleHandler);
