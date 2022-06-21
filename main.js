@@ -2,17 +2,24 @@
 let DATA = [];
 const MAX_WEALTH_RATE = 1000000;
 const main = document.querySelector("main");
+const addUserButton = document.querySelector("#add-user");
+const doubleMoneyButton = document.querySelector("#double");
+const showMillioniersBtn = document.querySelector("#show-millionaires");
+const sortByRichest = document.querySelector("#sort");
 
 // Format number as money - https://stackoverflow.com/questions/149055/how-to-format-numbers-as-currency-string
 function formatMoney(number) {
-  return '$' + number.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+  return "$" + number.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
 }
 
 const setData = (obj) => {
   DATA.push(obj);
 
-  setPerson();
+  updateDOM();
 };
+
+fetchUsers();
+fetchUsers();
 
 async function fetchUsers() {
   const results = await fetch("https://randomuser.me/api/");
@@ -28,26 +35,23 @@ async function fetchUsers() {
   setData(newUser);
 }
 
-document.addEventListener("DOMContentLoaded", fetchUsers);
-
-function setPerson(providedData = DATA) {
+function updateDOM(providedData = DATA) {
   main.innerHTML = "<h2><strong>Person</strong> Wealth</h2>";
 
   providedData.forEach((user) => {
     const element = document.createElement("div");
     element.classList.add("person");
-    element.innerHTML = `<strong>${user.name}</strong> ${formatMoney(user.wealth)}`;
+    element.innerHTML = `<strong>${user.name}</strong> ${formatMoney(
+      user.wealth
+    )}`;
     main.appendChild(element);
   });
 }
 
-const addUserButton = document.querySelector("#add-user");
-
+// addUser
 const addUserHandler = () => {
   fetchUsers();
 };
-
-addUserButton.addEventListener("click", addUserHandler);
 
 // Use map() to double wealth
 function doubleHandler() {
@@ -55,7 +59,23 @@ function doubleHandler() {
     return { ...user, wealth: user.wealth * 2 };
   });
 
-  setPerson();
+  updateDOM();
 }
-const doubleMoneyButton = document.querySelector("#double");
+
+// - Use filter() to filter only millionaires
+const filterMillioniers = () => {
+  DATA = DATA.filter((item) => item.wealth > 1000000);
+
+  updateDOM();
+};
+
+//- Use sort() to sort by wealth
+function sortByWealth() {
+  console.log('ok')
+};
+
+document.addEventListener("DOMContentLoaded", fetchUsers);
+addUserButton.addEventListener("click", addUserHandler);
 doubleMoneyButton.addEventListener("click", doubleHandler);
+showMillioniersBtn.addEventListener("click", filterMillioniers);
+sortByRichest.addEventListener("click", sortByWealth);
