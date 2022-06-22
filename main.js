@@ -20,6 +20,7 @@ const setData = (obj) => {
 
 fetchUsers();
 fetchUsers();
+fetchUsers();
 
 async function fetchUsers() {
   const results = await fetch("https://randomuser.me/api/");
@@ -35,23 +36,51 @@ async function fetchUsers() {
   setData(newUser);
 }
 
+// - Use filter() to filter only millionaires
+const filterMillioniers = () => {
+  // FIXME: doesn't filters
+  DATA.filter((item) => item.wealth > 1000000);
+
+  updateDOM();
+};
+
+//- Use sort() to sort by wealth
+function sortByWealth() {
+  // doesn't sort
+  DATA = DATA.sort((item) => item.wealth < 1000000);
+
+  updateDOM();
+}
+
+//- Use reduce() to add all wealth
+const getTotal = () => {
+  let results = DATA.reduce((prev, curr) => prev + curr.wealth, 0);
+  const element = document.createElement("div");
+  element.innerHTML = `<h3><strong>TOTAL WEALTH:</strong> ${formatMoney(
+    results
+  )}</h3>`;
+  main.appendChild(element); 
+};
+
+const total = document.querySelector("#calculate-wealth");
+total.addEventListener("click", getTotal);
+
+const getTemplate = () => {
+  const template = document.createElement("div");
+  template.classList.add("person");
+  return template;
+};
 function updateDOM(providedData = DATA) {
   main.innerHTML = "<h2><strong>Person</strong> Wealth</h2>";
 
   providedData.forEach((user) => {
-    const element = document.createElement("div");
-    element.classList.add("person");
+    const element = getTemplate();
     element.innerHTML = `<strong>${user.name}</strong> ${formatMoney(
       user.wealth
     )}`;
     main.appendChild(element);
   });
 }
-
-// addUser
-const addUserHandler = () => {
-  fetchUsers();
-};
 
 // Use map() to double wealth
 function doubleHandler() {
@@ -62,20 +91,8 @@ function doubleHandler() {
   updateDOM();
 }
 
-// - Use filter() to filter only millionaires
-const filterMillioniers = () => {
-  DATA = DATA.filter((item) => item.wealth > 1000000);
-
-  updateDOM();
-};
-
-//- Use sort() to sort by wealth
-function sortByWealth() {
-  console.log('ok')
-};
-
-document.addEventListener("DOMContentLoaded", fetchUsers);
-addUserButton.addEventListener("click", addUserHandler);
+// document.addEventListener("DOMContentLoaded", fetchUsers);
+addUserButton.addEventListener("click", fetchUsers);
 doubleMoneyButton.addEventListener("click", doubleHandler);
-showMillioniersBtn.addEventListener("click", filterMillioniers);
 sortByRichest.addEventListener("click", sortByWealth);
+showMillioniersBtn.addEventListener("click", filterMillioniers);
